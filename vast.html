@@ -1,63 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Popunder Mejorado</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #ffffff;
-      height: 100vh;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embed Link Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .language-btn {
+            display: inline-block;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .embed-container {
+            margin-top: 20px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            margin-top: 20px;
+        }
+
+        .embed-list {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-  <script>
-    // URL del Popunder
-    const popunderUrl = '//enginecorruptiontrice.com/64/89/4d/64894ddeb63eabeec4e682ad763c7c46.js';
+    <h1>Embed Link Generator</h1>
+    <p>Añade enlaces embed para que los usuarios puedan elegir entre servidores y cambiar de idioma.</p>
 
-    // Función para abrir el Popunder
-    function openPopunder() {
-      try {
-        // Cargar el script en una nueva ventana
-        const popunder = window.open('', '_blank', 'width=800,height=600');
+    <form id="embedForm">
+        <label for="embedUrl">Enlace Embed:</label>
+        <input type="text" id="embedUrl" placeholder="Introduce el enlace embed" required>
 
-        if (popunder) {
-          popunder.document.write(`
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Popunder</title>
-            </head>
-            <body>
-              <script type="text/javascript" src="${popunderUrl}"></script>
-            </body>
-            </html>
-          `);
-          popunder.document.close();
-          popunder.blur();
-          window.focus();
-        } else {
-          console.error('El Popunder no pudo abrirse. Verifica las configuraciones del navegador.');
-        }
-      } catch (error) {
-        console.error('Error al cargar el Popunder:', error);
-        alert('No se pudo cargar el contenido del Popunder. Por favor, intenta más tarde.');
-      }
-    }
+        <label for="language">Idioma:</label>
+        <select id="language">
+            <option value="ESP">Español</option>
+            <option value="SUB">Subtitulado</option>
+            <option value="LAT">Latino</option>
+        </select>
 
-    // Activar Popunder al hacer clic
-    document.addEventListener('click', function handleClick() {
-      openPopunder();
+        <button type="button" id="addLinkBtn">Agregar Enlace</button>
+    </form>
 
-      // Eliminar el evento para evitar múltiples activaciones
-      document.removeEventListener('click', handleClick);
-    });
-  </script>
+    <div id="embedList" class="embed-list">
+        <!-- Lista de enlaces agregados aparecerá aquí -->
+    </div>
+
+    <div class="embed-container">
+        <div id="languageSwitcher">
+            <span class="language-btn" data-lang="ESP">
+                <img src="https://embed69.org/static/lang/ESP.png" alt="Español" width="40">
+            </span>
+            <span class="language-btn" data-lang="SUB">
+                <img src="https://embed69.org/static/lang/SUB.png" alt="Subtitulado" width="40">
+            </span>
+            <span class="language-btn" data-lang="LAT">
+                <img src="https://embed69.org/static/lang/LAT.png" alt="Latino" width="40">
+            </span>
+        </div>
+
+        <iframe id="embedPlayer" src="" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        const embedList = [];
+
+        const embedForm = document.getElementById('embedForm');
+        const embedUrlInput = document.getElementById('embedUrl');
+        const languageSelect = document.getElementById('language');
+        const embedListContainer = document.getElementById('embedList');
+        const embedPlayer = document.getElementById('embedPlayer');
+
+        const languageButtons = document.querySelectorAll('.language-btn');
+
+        document.getElementById('addLinkBtn').addEventListener('click', () => {
+            const embedUrl = embedUrlInput.value.trim();
+            const language = languageSelect.value;
+
+            if (!embedUrl) {
+                alert('Introduce un enlace embed válido.');
+                return;
+            }
+
+            embedList.push({ url: embedUrl, language });
+
+            // Agregar enlace a la lista visible
+            const listItem = document.createElement('div');
+            listItem.textContent = `${language}: ${embedUrl}`;
+            listItem.style.margin = '5px 0';
+            embedListContainer.appendChild(listItem);
+
+            embedUrlInput.value = ''; // Limpiar campo
+        });
+
+        // Cambiar idioma y actualizar iframe
+        languageButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const selectedLanguage = e.target.closest('.language-btn').dataset.lang;
+                const selectedEmbed = embedList.find(item => item.language === selectedLanguage);
+
+                if (selectedEmbed) {
+                    embedPlayer.src = selectedEmbed.url;
+                } else {
+                    alert(`No hay enlaces para el idioma seleccionado (${selectedLanguage}).`);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
