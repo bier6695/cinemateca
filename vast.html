@@ -3,36 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generador de Anuncios VAST</title>
+  <title>Anuncio VAST con Redirección</title>
   <style>
     #videoContainer {
       display: none;
       position: relative;
       width: 640px;
       height: 360px;
+      margin: 20px auto;
     }
     video {
       width: 100%;
       height: 100%;
     }
+    #content {
+      display: none;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <h1>Generador de Anuncios VAST</h1>
-  <button id="generateAd">Generar Anuncio</button>
+  <h1>Anuncio VAST con Redirección</h1>
+  <button id="generateAd">Ingresar</button>
   <div id="videoContainer">
     <video id="adPlayer" controls></video>
+  </div>
+  <div id="content">
+    <h2>Bienvenido al Contenido</h2>
+    <p>Este es el contenido al que el usuario quería ingresar.</p>
   </div>
   
   <script>
     document.getElementById('generateAd').addEventListener('click', async () => {
       const videoContainer = document.getElementById('videoContainer');
       const adPlayer = document.getElementById('adPlayer');
-      
+      const content = document.getElementById('content');
+      const vastUrl = 'https://www.videosprofitnetwork.com/watch.xml?key=99506106f2100b354b988c433568eede';
+
       try {
-        // URL del anuncio VAST
-        const vastUrl = 'https://www.videosprofitnetwork.com/watch.xml?key=99506106f2100b354b988c433568eede';
-        
         // Solicitar y analizar el archivo VAST
         const response = await fetch(vastUrl);
         const vastXml = await response.text();
@@ -46,6 +54,12 @@
           adPlayer.src = videoUrl;
           videoContainer.style.display = 'block';
           adPlayer.play();
+
+          // Escuchar el evento cuando el video termina
+          adPlayer.addEventListener('ended', () => {
+            videoContainer.style.display = 'none';
+            content.style.display = 'block';
+          });
         } else {
           alert('No se encontró ningún archivo multimedia en el VAST.');
         }
