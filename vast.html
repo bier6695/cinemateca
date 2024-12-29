@@ -98,6 +98,27 @@
             </div>
         </div>
 
+        <!-- Reproductor con Selección de Idioma -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Reproductor</h2>
+            <div class="flex justify-center space-x-4 mb-4">
+                <template x-for="lang in languages" :key="lang.code">
+                    <button 
+                        @click="switchLanguage(lang.code)"
+                        :class="{'ring-2 ring-blue-500': currentLanguage === lang.code}"
+                        class="p-1 rounded-lg hover:bg-gray-100 transition duration-200"
+                    >
+                        <img :src="lang.icon" :alt="lang.name" class="w-10 h-10">
+                    </button>
+                </template>
+            </div>
+            <iframe 
+                x-bind:src="currentEmbedUrl"
+                class="w-full h-[600px] rounded-lg"
+                allowfullscreen
+            ></iframe>
+        </div>
+
         <!-- Generar Enlace Embed -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <button 
@@ -223,7 +244,15 @@
                     }
 
                     const embedUrls = this.embedList.map(embed => embed.url).join(',');
-                    this.embedCode = `<iframe src="https://mi-reproductor.com/embed?urls=${encodeURIComponent(embedUrls)}" class="w-full h-[600px]" allowfullscreen></iframe>`;
+                    this.embedCode = `<iframe src="https://github.com/bier6695/cinemateca/vast.html?urls=${encodeURIComponent(embedUrls)}" class="w-full h-[600px]" allowfullscreen></iframe>`;
+                },
+
+                switchLanguage(languageCode) {
+                    this.currentLanguage = languageCode;
+                    const currentEmbed = this.embedList.find(embed => embed.language === languageCode);
+                    if (currentEmbed) {
+                        this.currentEmbedUrl = currentEmbed.url;
+                    }
                 },
 
                 isValidUrl(url) {
