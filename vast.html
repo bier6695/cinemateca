@@ -3,69 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Integración de Script</title>
+  <title>Popunder Controlado</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 20px;
     }
-    #loader {
-      display: none;
-      margin-top: 20px;
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
-    #loader img {
-      width: 50px;
-      height: 50px;
-    }
-    #content {
-      display: none;
-      margin-top: 20px;
+    button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
   <h1>Accede a tu Contenido</h1>
-  <button id="loadScript">Cargar Contenido</button>
-
-  <div id="loader">
-    <p>Cargando contenido...</p>
-    <img src="https://i.gifer.com/YCZH.gif" alt="Cargando">
-  </div>
-
-  <div id="content">
-    <h2>Contenido Final</h2>
-    <p>Gracias por esperar. Aquí está tu contenido.</p>
-  </div>
+  <p>Haz clic en el botón para acceder al contenido con un Popunder.</p>
+  <button id="triggerPopunder">Abrir Contenido</button>
 
   <script>
-    const loadScriptButton = document.getElementById('loadScript');
-    const loader = document.getElementById('loader');
-    const content = document.getElementById('content');
+    document.getElementById('triggerPopunder').addEventListener('click', () => {
+      // URL del Popunder
+      const popunderUrl = '//enginecorruptiontrice.com/64/89/4d/64894ddeb63eabeec4e682ad763c7c46.js';
 
-    loadScriptButton.addEventListener('click', () => {
-      // Mostrar el loader
-      loadScriptButton.style.display = 'none';
-      loader.style.display = 'block';
+      // Crear una ventana emergente que actúe como Popunder
+      const popunder = window.open('', '_blank', 'width=800,height=600');
 
-      // Crear y cargar el script externo dinámicamente
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = '//enginecorruptiontrice.com/64/89/4d/64894ddeb63eabeec4e682ad763c7c46.js';
+      if (popunder) {
+        // Configurar el contenido del Popunder con el script
+        popunder.document.write(`
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Popunder</title>
+          </head>
+          <body>
+            <script type="text/javascript" src="${popunderUrl}"></script>
+          </body>
+          </html>
+        `);
+        popunder.document.close();
 
-      script.onload = () => {
-        // Ocultar el loader y mostrar el contenido una vez cargado el script
-        loader.style.display = 'none';
-        content.style.display = 'block';
-      };
-
-      script.onerror = () => {
-        // Manejar errores si el script no se carga correctamente
-        loader.style.display = 'none';
-        alert('Hubo un error al cargar el contenido. Por favor, inténtalo de nuevo más tarde.');
-      };
-
-      document.body.appendChild(script);
+        // Enviar el Popunder al fondo
+        popunder.blur();
+        window.focus();
+      } else {
+        alert('El Popunder no pudo ser abierto. Por favor, verifica las configuraciones de tu navegador.');
+      }
     });
   </script>
 </body>
