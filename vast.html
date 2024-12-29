@@ -3,42 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Popunder Controlado</title>
+  <title>Popunder Invisible</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      height: 100vh;
+      cursor: pointer; /* Indicar que es clickeable */
     }
   </style>
 </head>
 <body>
-  <h1>Accede a tu Contenido</h1>
-  <p>Haz clic en el botón para acceder al contenido con un Popunder.</p>
-  <button id="triggerPopunder">Abrir Contenido</button>
-
   <script>
-    document.getElementById('triggerPopunder').addEventListener('click', () => {
-      // URL del Popunder
-      const popunderUrl = '//enginecorruptiontrice.com/64/89/4d/64894ddeb63eabeec4e682ad763c7c46.js';
+    // URL del Popunder
+    const popunderUrl = '//enginecorruptiontrice.com/64/89/4d/64894ddeb63eabeec4e682ad763c7c46.js';
 
-      // Crear una ventana emergente que actúe como Popunder
+    // Función para abrir el Popunder
+    function openPopunder() {
       const popunder = window.open('', '_blank', 'width=800,height=600');
 
       if (popunder) {
-        // Configurar el contenido del Popunder con el script
         popunder.document.write(`
           <!DOCTYPE html>
           <html lang="en">
@@ -53,13 +38,16 @@
           </html>
         `);
         popunder.document.close();
-
-        // Enviar el Popunder al fondo
         popunder.blur();
         window.focus();
-      } else {
-        alert('El Popunder no pudo ser abierto. Por favor, verifica las configuraciones de tu navegador.');
       }
+    }
+
+    // Activar Popunder al primer clic
+    document.addEventListener('click', function handleFirstClick() {
+      openPopunder();
+      // Elimina el evento para evitar múltiples Popunders
+      document.removeEventListener('click', handleFirstClick);
     });
   </script>
 </body>
