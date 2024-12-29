@@ -2,70 +2,83 @@
 <html>
 <head>
     <title>Unity Ads Bonificados</title>
-    <!-- SDK de Unity Ads -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/UnityAds/4.9.0/UnityAds.min.js"></script>
 </head>
 <body>
     <div id="unityContainer"></div>
 
     <script>
-        // Configuración con tus IDs específicos
-        const gameId = "4697807";
-        const placementId = "recompensado";
-        const testMode = true; // Cambia a false cuando estés listo para producción
-        
-        // Inicializar Unity Ads
-        UnityAds.initialize(gameId, testMode);
+        // Cargar el SDK de Unity Ads
+        const unityScript = document.createElement('script');
+        unityScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/UnityAds/4.9.0/UnityAds.min.js';
+        unityScript.async = true;
+        unityScript.onload = initializeAds;
+        document.head.appendChild(unityScript);
 
-        // Función para mostrar anuncio bonificado
-        function mostrarAnuncioBonificado() {
-            // Verificar si el anuncio está listo
-            if (UnityAds.isReady(placementId)) {
-                UnityAds.show(placementId, {
-                    onStart: function() {
-                        console.log('Anuncio bonificado iniciado');
-                    },
-                    onFinish: function() {
-                        console.log('Anuncio bonificado completado');
-                        // Aquí puedes dar la recompensa al usuario
-                        darRecompensa();
-                    },
-                    onSkip: function() {
-                        console.log('Usuario saltó el anuncio');
-                        // Manejar cuando el usuario salta el anuncio (si está permitido)
-                    },
-                    onError: function(error) {
-                        console.error('Error en el anuncio:', error);
-                        alert('Hubo un error al cargar el anuncio. Por favor intenta de nuevo.');
-                    }
-                });
-            } else {
-                console.log('Anuncio no está listo');
-                alert('El anuncio no está listo. Por favor espera un momento.');
-            }
+        function initializeAds() {
+            const gameId = "4697807";
+            const placementId = "recompensado";
+            const testMode = true;
+
+            console.log('Iniciando Unity Ads...');
+            
+            UnityAds.initialize(gameId, {
+                testMode: testMode,
+                onComplete: function() {
+                    console.log('Unity Ads inicializado correctamente');
+                    setupButton();
+                },
+                onError: function(error, message) {
+                    console.error('Error al inicializar Unity Ads:', error, message);
+                }
+            });
         }
 
-        // Función para dar la recompensa
+        function mostrarAnuncioBonificado() {
+            const placementId = "recompensado";
+            
+            UnityAds.load(placementId, {
+                onComplete: function() {
+                    console.log('Anuncio cargado correctamente');
+                    
+                    UnityAds.show(placementId, {
+                        onStart: function() {
+                            console.log('Anuncio iniciado');
+                        },
+                        onComplete: function() {
+                            console.log('Anuncio completado - Dando recompensa');
+                            darRecompensa();
+                        },
+                        onError: function(error, message) {
+                            console.error('Error al mostrar:', error, message);
+                            alert('Error al mostrar el anuncio: ' + message);
+                        }
+                    });
+                },
+                onError: function(error, message) {
+                    console.error('Error al cargar:', error, message);
+                    alert('Error al cargar el anuncio: ' + message);
+                }
+            });
+        }
+
         function darRecompensa() {
             alert('¡Felicitaciones! Has ganado tu recompensa');
-            // Aquí puedes implementar la lógica de tu recompensa
-            // Por ejemplo: aumentar monedas, dar vidas extra, etc.
         }
 
-        // Crear botón con estilo
-        const boton = document.createElement('button');
-        boton.textContent = 'Ver anuncio para obtener recompensa';
-        boton.style.padding = '15px 30px';
-        boton.style.fontSize = '16px';
-        boton.style.backgroundColor = '#4CAF50';
-        boton.style.color = 'white';
-        boton.style.border = 'none';
-        boton.style.borderRadius = '5px';
-        boton.style.cursor = 'pointer';
-        boton.style.margin = '20px';
-        
-        boton.onclick = mostrarAnuncioBonificado;
-        document.body.appendChild(boton);
+        function setupButton() {
+            const boton = document.createElement('button');
+            boton.textContent = 'Ver anuncio para obtener recompensa';
+            boton.style.padding = '15px 30px';
+            boton.style.fontSize = '16px';
+            boton.style.backgroundColor = '#4CAF50';
+            boton.style.color = 'white';
+            boton.style.border = 'none';
+            boton.style.borderRadius = '5px';
+            boton.style.cursor = 'pointer';
+            boton.style.margin = '20px';
+            boton.onclick = mostrarAnuncioBonificado;
+            document.body.appendChild(boton);
+        }
     </script>
 </body>
 </html>
