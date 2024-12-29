@@ -12,9 +12,6 @@
     <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- Sortable.js para drag & drop -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    
     <!-- Alpine.js para reactividad -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
@@ -30,7 +27,7 @@
             <p class="text-gray-600">Gestiona tus enlaces embed con funcionalidades avanzadas</p>
         </div>
 
-        <!-- Form -->
+        <!-- Formulario de Enlaces -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <form @submit.prevent="addEmbed" class="space-y-4">
                 <div>
@@ -65,7 +62,7 @@
             </form>
         </div>
 
-        <!-- Embed List -->
+        <!-- Enlaces Agregados -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 class="text-2xl font-semibold mb-4">Enlaces Agregados</h2>
             <div id="embedList" class="space-y-2">
@@ -95,39 +92,24 @@
                             >
                                 🗑️
                             </button>
-                            <!-- Nuevo botón para copiar el código embed -->
-                            <button 
-                                @click="copyEmbedCode(embed)"
-                                class="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                data-tippy-content="Copiar código embed"
-                            >
-                                🔗
-                            </button>
                         </div>
                     </div>
                 </template>
             </div>
         </div>
 
-        <!-- Preview -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex justify-center space-x-4 mb-4">
-                <template x-for="lang in languages" :key="lang.code">
-                    <button 
-                        @click="switchLanguage(lang.code)"
-                        :class="{'ring-2 ring-blue-500': currentLanguage === lang.code}"
-                        class="p-1 rounded-lg hover:bg-gray-100 transition duration-200"
-                    >
-                        <img :src="lang.icon" :alt="lang.name" class="w-10 h-10">
-                    </button>
-                </template>
+        <!-- Generar Enlace Embed -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <button 
+                @click="generateEmbedCode"
+                class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-200"
+            >
+                Generar Enlace Embed
+            </button>
+            <div x-show="embedCode" class="mt-4 p-4 bg-gray-50 rounded-lg">
+                <h3 class="text-xl font-semibold">Código Embed:</h3>
+                <textarea readonly class="w-full p-3 mt-2 border rounded-lg focus:ring-2 focus:ring-blue-500" rows="6" x-text="embedCode"></textarea>
             </div>
-            <iframe 
-                id="embedPlayer"
-                x-bind:src="currentEmbedUrl"
-                class="w-full h-[600px] rounded-lg"
-                allowfullscreen
-            ></iframe>
         </div>
     </div>
 
@@ -140,6 +122,7 @@
                     url: '',
                     language: 'ESP'
                 },
+                embedCode: '',
                 languages: [
                     { code: 'ESP', name: 'Español', icon: 'https://embed69.org/static/lang/ESP.png' },
                     { code: 'SUB', name: 'Subtitulado', icon: 'https://embed69.org/static/lang/SUB.png' },
@@ -147,24 +130,11 @@
                 ],
                 
                 init() {
-                    // Inicializar Sortable.js
-                    new Sortable(document.getElementById('embedList'), {
-                        animation: 150,
-                        onEnd: () => {
-                            // Actualizar orden si es necesario
-                        }
-                    });
-
                     // Inicializar Tippy.js
                     tippy('[data-tippy-content]');
 
                     // Cargar datos guardados
                     this.loadSavedData();
-                },
-
-                get currentEmbedUrl() {
-                    const embed = this.embedList.find(e => e.language === this.currentLanguage);
-                    return embed ? embed.url : '';
                 },
 
                 loadSavedData() {
@@ -205,9 +175,9 @@
                     });
                 },
 
-                async copyToClipboard(text) {
+                copyToClipboard(text) {
                     try {
-                        await navigator.clipboard.writeText(text);
+                        navigator.clipboard.writeText(text);
                         Swal.fire({
                             title: '¡Copiado!',
                             text: 'Enlace copiado al portapapeles',
@@ -242,25 +212,18 @@
                     });
                 },
 
-                switchLanguage(language) {
-                    this.currentLanguage = language;
-                    if (!this.currentEmbedUrl) {
+                generateEmbedCode() {
+                    if (this.embedList.length === 0) {
                         Swal.fire({
-                            title: 'Sin enlaces',
-                            text: `No hay enlaces disponibles para ${this.getLanguageName(language)}`,
+                            title: 'Sin Enlaces',
+                            text: 'Agrega enlaces antes de generar el código embed',
                             icon: 'info'
                         });
+                        return;
                     }
-                },
 
-                getLanguageIcon(code) {
-                    const lang = this.languages.find(l => l.code === code);
-                    return lang ? lang.icon : '';
-                },
-
-                getLanguageName(code) {
-                    const lang = this.languages.find(l => l.code === code);
-                    return lang ? lang.name : code;
+                    const embedUrls = this.embedList.map(embed => embed.url).join(',');
+                    this.embedCode = `<iframe src="https://mi-reproductor.com/embed?urls=${encodeURIComponent(embedUrls)}" class="w-full h-[600px]" allowfullscreen></iframe>`;
                 },
 
                 isValidUrl(url) {
@@ -270,25 +233,6 @@
                     } catch {
                         return false;
                     }
-                },
-
-                // Función para copiar el código embed
-                copyEmbedCode(embed) {
-                    const embedCode = `<iframe src="${embed.url}?lang=${embed.language}" width="560" height="315" frameborder="0" allowfullscreen></iframe>`;
-                    navigator.clipboard.writeText(embedCode).then(() => {
-                        Swal.fire({
-                            title: '¡Copiado!',
-                            text: 'Código embed copiado al portapapeles',
-                            icon: 'success',
-                            timer: 1500
-                        });
-                    }).catch(() => {
-                        Swal.fire({
-                            title: 'Error',
-                            text: 'No se pudo copiar el código embed',
-                            icon: 'error'
-                        });
-                    });
                 }
             }
         }
