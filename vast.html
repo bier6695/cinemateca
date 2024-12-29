@@ -3,68 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anuncio Interactivo</title>
+  <title>Integración de Script</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 20px;
     }
-    #adContainer {
+    #loader {
       display: none;
-      position: relative;
-      width: 100%;
-      max-width: 640px;
-      margin: 20px auto;
+      margin-top: 20px;
     }
-    iframe {
-      width: 100%;
-      height: 360px;
-      border: none;
+    #loader img {
+      width: 50px;
+      height: 50px;
     }
     #content {
       display: none;
       margin-top: 20px;
     }
-    #content h2 {
-      color: #333;
-    }
   </style>
 </head>
 <body>
-  <h1>Acceso al Contenido</h1>
-  <p>Haz clic en el botón para acceder al contenido después de ver el anuncio.</p>
-  <button id="startAd">Ver Anuncio</button>
+  <h1>Accede a tu Contenido</h1>
+  <button id="loadScript">Cargar Contenido</button>
 
-  <div id="adContainer">
-    <!-- Aquí se cargará el script externo -->
-    <iframe id="adIframe"></iframe>
+  <div id="loader">
+    <p>Cargando contenido...</p>
+    <img src="https://i.gifer.com/YCZH.gif" alt="Cargando">
   </div>
 
   <div id="content">
-    <h2>Bienvenido al Contenido</h2>
+    <h2>Contenido Final</h2>
     <p>Gracias por esperar. Aquí está tu contenido.</p>
   </div>
 
-  <script type="text/javascript">
-    const startAdButton = document.getElementById('startAd');
-    const adContainer = document.getElementById('adContainer');
-    const adIframe = document.getElementById('adIframe');
+  <script>
+    const loadScriptButton = document.getElementById('loadScript');
+    const loader = document.getElementById('loader');
     const content = document.getElementById('content');
 
-    startAdButton.addEventListener('click', () => {
-      // Ocultar el botón y mostrar el contenedor del anuncio
-      startAdButton.style.display = 'none';
-      adContainer.style.display = 'block';
+    loadScriptButton.addEventListener('click', () => {
+      // Mostrar el loader
+      loadScriptButton.style.display = 'none';
+      loader.style.display = 'block';
 
-      // Cargar el script externo en un iframe para mayor control
-      adIframe.src = '//enginecorruptiontrice.com/64/89/4d/64894ddeb63eabeec4e682ad763c7c46.js';
+      // Crear y cargar el script externo dinámicamente
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = '//enginecorruptiontrice.com/64/89/4d/64894ddeb63eabeec4e682ad763c7c46.js';
 
-      // Simular el tiempo del anuncio (por ejemplo, 15 segundos)
-      setTimeout(() => {
-        adContainer.style.display = 'none';
+      script.onload = () => {
+        // Ocultar el loader y mostrar el contenido una vez cargado el script
+        loader.style.display = 'none';
         content.style.display = 'block';
-      }, 15000); // 15,000 ms = 15 segundos
+      };
+
+      script.onerror = () => {
+        // Manejar errores si el script no se carga correctamente
+        loader.style.display = 'none';
+        alert('Hubo un error al cargar el contenido. Por favor, inténtalo de nuevo más tarde.');
+      };
+
+      document.body.appendChild(script);
     });
   </script>
 </body>
