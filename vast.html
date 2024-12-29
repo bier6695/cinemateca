@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Popunder Invisible</title>
+  <title>Popunder Activo</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-      background-color: #ffffff;
       height: 100vh;
-      cursor: pointer; /* Indicar que es clickeable */
+      background-color: #ffffff;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -21,33 +21,22 @@
 
     // Función para abrir el Popunder
     function openPopunder() {
-      const popunder = window.open('', '_blank', 'width=800,height=600');
+      // Abre una nueva ventana para el anuncio
+      const popunder = window.open(popunderUrl, '_blank', 'width=800,height=600');
 
       if (popunder) {
-        popunder.document.write(`
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Popunder</title>
-          </head>
-          <body>
-            <script type="text/javascript" src="${popunderUrl}"></script>
-          </body>
-          </html>
-        `);
-        popunder.document.close();
+        // Enviar el Popunder al fondo
         popunder.blur();
         window.focus();
       }
     }
 
-    // Activar Popunder al primer clic
-    document.addEventListener('click', function handleFirstClick() {
+    // Activar el Popunder al hacer clic en cualquier lugar
+    document.addEventListener('click', function handleClick() {
       openPopunder();
-      // Elimina el evento para evitar múltiples Popunders
-      document.removeEventListener('click', handleFirstClick);
+
+      // Elimina el evento para evitar múltiples activaciones
+      document.removeEventListener('click', handleClick);
     });
   </script>
 </body>
