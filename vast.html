@@ -3,70 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anuncio VAST con Redirección</title>
+  <title>Anuncio Interactivo</title>
   <style>
-    #videoContainer {
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #adContainer {
       display: none;
       position: relative;
-      width: 640px;
-      height: 360px;
+      width: 100%;
+      max-width: 640px;
       margin: 20px auto;
     }
-    video {
+    iframe {
       width: 100%;
-      height: 100%;
+      height: 360px;
+      border: none;
     }
     #content {
       display: none;
-      text-align: center;
+      margin-top: 20px;
+    }
+    #content h2 {
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <h1>Anuncio VAST con Redirección</h1>
-  <button id="generateAd">Ingresar</button>
-  <div id="videoContainer">
-    <video id="adPlayer" controls></video>
+  <h1>Acceso al Contenido</h1>
+  <p>Haz clic en el botón para acceder al contenido después de ver el anuncio.</p>
+  <button id="startAd">Ver Anuncio</button>
+
+  <div id="adContainer">
+    <!-- Aquí se cargará el script externo -->
+    <iframe id="adIframe"></iframe>
   </div>
+
   <div id="content">
     <h2>Bienvenido al Contenido</h2>
-    <p>Este es el contenido al que el usuario quería ingresar.</p>
+    <p>Gracias por esperar. Aquí está tu contenido.</p>
   </div>
-  
-  <script>
-    document.getElementById('generateAd').addEventListener('click', async () => {
-      const videoContainer = document.getElementById('videoContainer');
-      const adPlayer = document.getElementById('adPlayer');
-      const content = document.getElementById('content');
-      const vastUrl = 'https://www.videosprofitnetwork.com/watch.xml?key=99506106f2100b354b988c433568eede';
 
-      try {
-        // Solicitar y analizar el archivo VAST
-        const response = await fetch(vastUrl);
-        const vastXml = await response.text();
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(vastXml, 'application/xml');
-        
-        // Extraer la URL del video del archivo VAST
-        const mediaFile = xmlDoc.querySelector('MediaFile');
-        if (mediaFile) {
-          const videoUrl = mediaFile.textContent.trim();
-          adPlayer.src = videoUrl;
-          videoContainer.style.display = 'block';
-          adPlayer.play();
+  <script type="text/javascript">
+    const startAdButton = document.getElementById('startAd');
+    const adContainer = document.getElementById('adContainer');
+    const adIframe = document.getElementById('adIframe');
+    const content = document.getElementById('content');
 
-          // Escuchar el evento cuando el video termina
-          adPlayer.addEventListener('ended', () => {
-            videoContainer.style.display = 'none';
-            content.style.display = 'block';
-          });
-        } else {
-          alert('No se encontró ningún archivo multimedia en el VAST.');
-        }
-      } catch (error) {
-        console.error('Error al cargar el anuncio VAST:', error);
-        alert('Hubo un problema al cargar el anuncio.');
-      }
+    startAdButton.addEventListener('click', () => {
+      // Ocultar el botón y mostrar el contenedor del anuncio
+      startAdButton.style.display = 'none';
+      adContainer.style.display = 'block';
+
+      // Cargar el script externo en un iframe para mayor control
+      adIframe.src = '//enginecorruptiontrice.com/64/89/4d/64894ddeb63eabeec4e682ad763c7c46.js';
+
+      // Simular el tiempo del anuncio (por ejemplo, 15 segundos)
+      setTimeout(() => {
+        adContainer.style.display = 'none';
+        content.style.display = 'block';
+      }, 15000); // 15,000 ms = 15 segundos
     });
   </script>
 </body>
