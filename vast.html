@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Ad Player</title>
+    <style>
+        .video-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #videoPlayer {
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <h2>Video Publicitario</h2>
+        <video id="videoPlayer" controls>
+            Tu navegador no soporta el elemento video.
+        </video>
+        <div id="callToAction" style="display: none; margin-top: 20px; text-align: center;">
+            <a href="#" class="btn-primary" id="continueButton">Continuar al sitio</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const callToAction = document.getElementById('callToAction');
+            const continueButton = document.getElementById('continueButton');
+
+            // Función para reproducir el video
+            function playAd() {
+                // Aquí normalmente cargarías tu VAST XML
+                videoPlayer.src = 'URL_DE_TU_VIDEO';
+                videoPlayer.play();
+            }
+
+            // Mostrar el botón cuando termine el video
+            videoPlayer.addEventListener('ended', function() {
+                callToAction.style.display = 'block';
+            });
+
+            // Iniciar reproducción cuando el usuario haga clic
+            videoPlayer.addEventListener('click', function() {
+                if (videoPlayer.paused) {
+                    videoPlayer.play();
+                }
+            });
+
+            // Configurar el botón de continuar
+            continueButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Aquí puedes redirigir al usuario a la página deseada
+                // window.location.href = 'URL_DESTINO';
+            });
+
+            // Iniciar el proceso
+            playAd();
+        });
+    </script>
+</body>
+</html>
