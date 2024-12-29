@@ -3,126 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Enlaces Embed</title>
+    <title>Generador de Enlaces Embed Mejorado</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- SweetAlert2 para alertas más atractivas -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Sortable.js para drag & drop -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    
+    <!-- Alpine.js para reactividad -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Tippy.js para tooltips -->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
 </head>
 <body class="bg-gray-100 min-h-screen" x-data="embedManager()">
     <div class="container mx-auto px-4 py-8">
-        <!-- Formulario y lista de enlaces (código anterior) -->
-        
-        <!-- Nuevo botón para generar código embed -->
-        <div class="bg-white rounded-lg shadow-md p-6 mt-8">
-            <h2 class="text-2xl font-semibold mb-4">Generar Código Embed</h2>
-            <button 
-                @click="generateEmbedCode"
-                class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-200"
-            >
-                Generar Código para Embed
-            </button>
-            
-            <!-- Campo para mostrar el código generado -->
-            <div x-show="embedCode" class="mt-4">
-                <label class="block text-gray-700 mb-2">Código para insertar:</label>
-                <div class="relative">
-                    <textarea 
-                        x-model="embedCode" 
-                        class="w-full h-32 p-3 border rounded-lg bg-gray-50 font-mono text-sm"
-                        readonly
-                    ></textarea>
-                    <button 
-                        @click="copyEmbedCode"
-                        class="absolute top-2 right-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Generador de Enlaces Embed</h1>
+            <p class="text-gray-600">Gestiona tus enlaces embed con funcionalidades avanzadas</p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <form @submit.prevent="addEmbed" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">Enlace Embed:</label>
+                    <input 
+                        type="text" 
+                        x-model="newEmbed.url" 
+                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="https://"
+                        required
                     >
-                        Copiar
-                    </button>
                 </div>
+
+                <div>
+                    <label class="block text-gray-700 mb-2">Idioma:</label>
+                    <select 
+                        x-model="newEmbed.language"
+                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    >
+                        <template x-for="lang in languages" :key="lang.code">
+                            <option :value="lang.code" x-text="lang.name"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <button 
+                    type="submit"
+                    class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-200"
+                >
+                    Agregar Enlace
+                </button>
+            </form>
+        </div>
+
+        <!-- Embed List -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Enlaces Agregados</h2>
+            <div id="embedList" class="space-y-2">
+                <template x-if="embedList.length === 0">
+                    <div class="text-center text-gray-500 py-4">
+                        No hay enlaces agregados
+                    </div>
+                </template>
+                <template x-for="embed in embedList" :key="embed.id">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
+                        <div class="flex items-center space-x-3">
+                            <img :src="getLanguageIcon(embed.language)" class="w-8 h-8" :alt="embed.language">
+                            <span x-text="embed.url" class="text-gray-700"></span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button 
+                                @click="copyToClipboard(embed.url)"
+                                class="p-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                data-tippy-content="Copiar enlace"
+                            >
+                                📋
+                            </button>
+                            <button 
+                                @click="removeEmbed(embed.id)"
+                                class="p-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                data-tippy-content="Eliminar enlace"
+                            >
+                                🗑️
+                            </button>
+                            <!-- Nuevo botón para copiar el código embed -->
+                            <button 
+                                @click="copyEmbedCode(embed)"
+                                class="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                data-tippy-content="Copiar código embed"
+                            >
+                                🔗
+                            </button>
+                        </div>
+                    </div>
+                </template>
             </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-center space-x-4 mb-4">
+                <template x-for="lang in languages" :key="lang.code">
+                    <button 
+                        @click="switchLanguage(lang.code)"
+                        :class="{'ring-2 ring-blue-500': currentLanguage === lang.code}"
+                        class="p-1 rounded-lg hover:bg-gray-100 transition duration-200"
+                    >
+                        <img :src="lang.icon" :alt="lang.name" class="w-10 h-10">
+                    </button>
+                </template>
+            </div>
+            <iframe 
+                id="embedPlayer"
+                x-bind:src="currentEmbedUrl"
+                class="w-full h-[600px] rounded-lg"
+                allowfullscreen
+            ></iframe>
         </div>
     </div>
 
     <script>
         function embedManager() {
             return {
-                // ... (código anterior del manager) ...
-                embedCode: '',
+                embedList: [],
+                currentLanguage: 'ESP',
+                newEmbed: {
+                    url: '',
+                    language: 'ESP'
+                },
+                languages: [
+                    { code: 'ESP', name: 'Español', icon: 'https://embed69.org/static/lang/ESP.png' },
+                    { code: 'SUB', name: 'Subtitulado', icon: 'https://embed69.org/static/lang/SUB.png' },
+                    { code: 'LAT', name: 'Latino', icon: 'https://embed69.org/static/lang/LAT.png' }
+                ],
+                
+                init() {
+                    // Inicializar Sortable.js
+                    new Sortable(document.getElementById('embedList'), {
+                        animation: 150,
+                        onEnd: () => {
+                            // Actualizar orden si es necesario
+                        }
+                    });
 
-                generateEmbedCode() {
-                    if (this.embedList.length === 0) {
+                    // Inicializar Tippy.js
+                    tippy('[data-tippy-content]');
+
+                    // Cargar datos guardados
+                    this.loadSavedData();
+                },
+
+                get currentEmbedUrl() {
+                    const embed = this.embedList.find(e => e.language === this.currentLanguage);
+                    return embed ? embed.url : '';
+                },
+
+                loadSavedData() {
+                    const saved = localStorage.getItem('embedList');
+                    if (saved) {
+                        this.embedList = JSON.parse(saved);
+                    }
+                },
+
+                saveData() {
+                    localStorage.setItem('embedList', JSON.stringify(this.embedList));
+                },
+
+                addEmbed() {
+                    if (!this.isValidUrl(this.newEmbed.url)) {
                         Swal.fire({
                             title: 'Error',
-                            text: 'Agrega al menos un enlace antes de generar el código embed',
+                            text: 'Por favor, introduce una URL válida',
                             icon: 'error'
                         });
                         return;
                     }
 
-                    // Crear un objeto con los datos necesarios
-                    const embedData = {
-                        links: this.embedList,
-                        languages: this.languages
-                    };
+                    this.embedList.push({
+                        id: Date.now(),
+                        url: this.newEmbed.url,
+                        language: this.newEmbed.language
+                    });
 
-                    // Generar el código HTML para el embed
-                    const embedHTML = `
-<div class="video-embed-container" style="width:100%;max-width:800px;margin:0 auto;">
-    <div class="language-switcher" style="display:flex;justify-content:center;gap:10px;margin:10px 0;">
-        ${this.languages.map(lang => `
-            <button onclick="switchLanguage('${lang.code}')" style="padding:5px;border-radius:4px;cursor:pointer;">
-                <img src="${lang.icon}" alt="${lang.name}" style="width:40px;height:40px;">
-            </button>
-        `).join('')}
-    </div>
-    <iframe id="playerFrame" style="width:100%;height:500px;border:none;" allowfullscreen></iframe>
-</div>
-<script>
-    // Datos de los enlaces
-    const embedData = ${JSON.stringify(embedData)};
-    let currentLanguage = '${this.currentLanguage}';
-
-    function switchLanguage(lang) {
-        currentLanguage = lang;
-        const embed = embedData.links.find(e => e.language === lang);
-        if (embed) {
-            document.getElementById('playerFrame').src = embed.url;
-        }
-    }
-
-    // Inicializar con el primer enlace disponible
-    document.addEventListener('DOMContentLoaded', () => {
-        const firstEmbed = embedData.links.find(e => e.language === currentLanguage);
-        if (firstEmbed) {
-            document.getElementById('playerFrame').src = firstEmbed.url;
-        }
-    });
-<\/script>`;
-
-                    this.embedCode = embedHTML;
+                    this.saveData();
+                    this.newEmbed.url = '';
 
                     Swal.fire({
-                        title: '¡Código generado!',
-                        text: 'El código embed ha sido generado exitosamente. Puedes copiarlo y pegarlo en tu sitio web.',
-                        icon: 'success'
+                        title: '¡Éxito!',
+                        text: 'Enlace agregado correctamente',
+                        icon: 'success',
+                        timer: 1500
                     });
                 },
 
-                async copyEmbedCode() {
+                async copyToClipboard(text) {
                     try {
-                        await navigator.clipboard.writeText(this.embedCode);
+                        await navigator.clipboard.writeText(text);
                         Swal.fire({
                             title: '¡Copiado!',
-                            text: 'Código copiado al portapapeles',
+                            text: 'Enlace copiado al portapapeles',
                             icon: 'success',
                             timer: 1500
                         });
                     } catch (err) {
                         Swal.fire({
                             title: 'Error',
-                            text: 'No se pudo copiar el código',
+                            text: 'No se pudo copiar el enlace',
                             icon: 'error'
                         });
                     }
+                },
+
+                removeEmbed(id) {
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: 'Esta acción no se puede deshacer',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.embedList = this.embedList.filter(embed => embed.id !== id);
+                            this.saveData();
+                            Swal.fire('Eliminado', 'El enlace ha sido eliminado', 'success');
+                        }
+                    });
+                },
+
+                switchLanguage(language) {
+                    this.currentLanguage = language;
+                    if (!this.currentEmbedUrl) {
+                        Swal.fire({
+                            title: 'Sin enlaces',
+                            text: `No hay enlaces disponibles para ${this.getLanguageName(language)}`,
+                            icon: 'info'
+                        });
+                    }
+                },
+
+                getLanguageIcon(code) {
+                    const lang = this.languages.find(l => l.code === code);
+                    return lang ? lang.icon : '';
+                },
+
+                getLanguageName(code) {
+                    const lang = this.languages.find(l => l.code === code);
+                    return lang ? lang.name : code;
+                },
+
+                isValidUrl(url) {
+                    try {
+                        new URL(url);
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                },
+
+                // Función para copiar el código embed
+                copyEmbedCode(embed) {
+                    const embedCode = `<iframe src="${embed.url}?lang=${embed.language}" width="560" height="315" frameborder="0" allowfullscreen></iframe>`;
+                    navigator.clipboard.writeText(embedCode).then(() => {
+                        Swal.fire({
+                            title: '¡Copiado!',
+                            text: 'Código embed copiado al portapapeles',
+                            icon: 'success',
+                            timer: 1500
+                        });
+                    }).catch(() => {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'No se pudo copiar el código embed',
+                            icon: 'error'
+                        });
+                    });
                 }
             }
         }
