@@ -1,120 +1,353 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Embed Link Generator</title>
+    <title>Generador de Enlaces Embed</title>
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --background-color: #f8fafc;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .language-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
         }
 
         .language-btn {
-            display: inline-block;
-            margin: 5px;
+            position: relative;
             cursor: pointer;
+            transition: transform 0.2s;
+            padding: 0.25rem;
+            border: 2px solid transparent;
+            border-radius: 4px;
         }
 
-        .embed-container {
-            margin-top: 20px;
+        .language-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .language-btn.active {
+            border-color: var(--primary-color);
+        }
+
+        .language-btn img {
+            display: block;
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .embed-list {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .embed-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .embed-item:last-child {
+            border-bottom: none;
+        }
+
+        .preview-container {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         iframe {
             width: 100%;
-            height: 500px;
+            height: 600px;
             border: none;
-            margin-top: 20px;
+            border-radius: 4px;
         }
 
-        .embed-list {
-            margin: 10px 0;
+        .delete-btn {
+            background-color: #ef4444;
+            padding: 0.5rem;
+            margin-left: 1rem;
+        }
+
+        .delete-btn:hover {
+            background-color: #dc2626;
+        }
+
+        .copy-btn {
+            background-color: #10b981;
+            padding: 0.5rem;
+            margin-left: 0.5rem;
+        }
+
+        .copy-btn:hover {
+            background-color: #059669;
+        }
+
+        .no-links {
+            text-align: center;
+            padding: 1rem;
+            color: #6b7280;
         }
     </style>
 </head>
 <body>
-    <h1>Embed Link Generator</h1>
-    <p>Añade enlaces embed para que los usuarios puedan elegir entre servidores y cambiar de idioma.</p>
-
-    <form id="embedForm">
-        <label for="embedUrl">Enlace Embed:</label>
-        <input type="text" id="embedUrl" placeholder="Introduce el enlace embed" required>
-
-        <label for="language">Idioma:</label>
-        <select id="language">
-            <option value="ESP">Español</option>
-            <option value="SUB">Subtitulado</option>
-            <option value="LAT">Latino</option>
-        </select>
-
-        <button type="button" id="addLinkBtn">Agregar Enlace</button>
-    </form>
-
-    <div id="embedList" class="embed-list">
-        <!-- Lista de enlaces agregados aparecerá aquí -->
-    </div>
-
-    <div class="embed-container">
-        <div id="languageSwitcher">
-            <span class="language-btn" data-lang="ESP">
-                <img src="https://embed69.org/static/lang/ESP.png" alt="Español" width="40">
-            </span>
-            <span class="language-btn" data-lang="SUB">
-                <img src="https://embed69.org/static/lang/SUB.png" alt="Subtitulado" width="40">
-            </span>
-            <span class="language-btn" data-lang="LAT">
-                <img src="https://embed69.org/static/lang/LAT.png" alt="Latino" width="40">
-            </span>
+    <div class="container">
+        <div class="header">
+            <h1>Generador de Enlaces Embed</h1>
+            <p>Gestiona tus enlaces embed y permite a los usuarios cambiar entre diferentes idiomas y servidores</p>
         </div>
 
-        <iframe id="embedPlayer" src="" allowfullscreen></iframe>
+        <div class="form-container">
+            <form id="embedForm">
+                <div class="form-group">
+                    <label for="embedUrl">Enlace Embed:</label>
+                    <input type="text" id="embedUrl" placeholder="https://" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="language">Idioma:</label>
+                    <select id="language">
+                        <option value="ESP">Español</option>
+                        <option value="SUB">Subtitulado</option>
+                        <option value="LAT">Latino</option>
+                    </select>
+                </div>
+
+                <button type="submit">Agregar Enlace</button>
+            </form>
+        </div>
+
+        <div class="embed-list">
+            <h2>Enlaces Agregados</h2>
+            <div id="embedList">
+                <div class="no-links">No hay enlaces agregados</div>
+            </div>
+        </div>
+
+        <div class="preview-container">
+            <div class="language-switcher" id="languageSwitcher">
+                <span class="language-btn" data-lang="ESP">
+                    <img src="https://embed69.org/static/lang/ESP.png" alt="Español">
+                </span>
+                <span class="language-btn" data-lang="SUB">
+                    <img src="https://embed69.org/static/lang/SUB.png" alt="Subtitulado">
+                </span>
+                <span class="language-btn" data-lang="LAT">
+                    <img src="https://embed69.org/static/lang/LAT.png" alt="Latino">
+                </span>
+            </div>
+            <iframe id="embedPlayer" allowfullscreen></iframe>
+        </div>
     </div>
 
     <script>
-        const embedList = [];
-
-        const embedForm = document.getElementById('embedForm');
-        const embedUrlInput = document.getElementById('embedUrl');
-        const languageSelect = document.getElementById('language');
-        const embedListContainer = document.getElementById('embedList');
-        const embedPlayer = document.getElementById('embedPlayer');
-
-        const languageButtons = document.querySelectorAll('.language-btn');
-
-        document.getElementById('addLinkBtn').addEventListener('click', () => {
-            const embedUrl = embedUrlInput.value.trim();
-            const language = languageSelect.value;
-
-            if (!embedUrl) {
-                alert('Introduce un enlace embed válido.');
-                return;
+        class EmbedManager {
+            constructor() {
+                this.embedList = [];
+                this.currentLanguage = 'ESP';
+                this.initializeElements();
+                this.setupEventListeners();
             }
 
-            embedList.push({ url: embedUrl, language });
+            initializeElements() {
+                this.form = document.getElementById('embedForm');
+                this.urlInput = document.getElementById('embedUrl');
+                this.languageSelect = document.getElementById('language');
+                this.embedListContainer = document.getElementById('embedList');
+                this.embedPlayer = document.getElementById('embedPlayer');
+                this.languageButtons = document.querySelectorAll('.language-btn');
+            }
 
-            // Agregar enlace a la lista visible
-            const listItem = document.createElement('div');
-            listItem.textContent = `${language}: ${embedUrl}`;
-            listItem.style.margin = '5px 0';
-            embedListContainer.appendChild(listItem);
+            setupEventListeners() {
+                this.form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+                this.languageButtons.forEach(button => {
+                    button.addEventListener('click', (e) => this.handleLanguageSwitch(e));
+                });
+            }
 
-            embedUrlInput.value = ''; // Limpiar campo
-        });
+            handleFormSubmit(e) {
+                e.preventDefault();
+                const url = this.urlInput.value.trim();
+                const language = this.languageSelect.value;
 
-        // Cambiar idioma y actualizar iframe
-        languageButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                const selectedLanguage = e.target.closest('.language-btn').dataset.lang;
-                const selectedEmbed = embedList.find(item => item.language === selectedLanguage);
-
-                if (selectedEmbed) {
-                    embedPlayer.src = selectedEmbed.url;
-                } else {
-                    alert(`No hay enlaces para el idioma seleccionado (${selectedLanguage}).`);
+                if (!this.isValidUrl(url)) {
+                    alert('Por favor, introduce una URL válida');
+                    return;
                 }
-            });
-        });
+
+                this.addEmbed(url, language);
+                this.updateDisplay();
+                this.form.reset();
+            }
+
+            isValidUrl(url) {
+                try {
+                    new URL(url);
+                    return true;
+                } catch {
+                    return false;
+                }
+            }
+
+            addEmbed(url, language) {
+                this.embedList.push({
+                    id: Date.now(),
+                    url,
+                    language
+                });
+            }
+
+            removeEmbed(id) {
+                this.embedList = this.embedList.filter(embed => embed.id !== id);
+                this.updateDisplay();
+            }
+
+            handleLanguageSwitch(e) {
+                const selectedLanguage = e.target.closest('.language-btn').dataset.lang;
+                this.currentLanguage = selectedLanguage;
+                
+                this.languageButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.closest('.language-btn').classList.add('active');
+
+                const selectedEmbed = this.embedList.find(item => item.language === selectedLanguage);
+                if (selectedEmbed) {
+                    this.embedPlayer.src = selectedEmbed.url;
+                } else {
+                    this.embedPlayer.src = '';
+                    alert(`No hay enlaces disponibles para ${this.getLanguageName(selectedLanguage)}`);
+                }
+            }
+
+            getLanguageName(code) {
+                const languages = {
+                    'ESP': 'Español',
+                    'SUB': 'Subtitulado',
+                    'LAT': 'Latino'
+                };
+                return languages[code] || code;
+            }
+
+            async copyToClipboard(text) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    alert('Enlace copiado al portapapeles');
+                } catch (err) {
+                    alert('Error al copiar el enlace');
+                }
+            }
+
+            updateDisplay() {
+                if (this.embedList.length === 0) {
+                    this.embedListContainer.innerHTML = '<div class="no-links">No hay enlaces agregados</div>';
+                    return;
+                }
+
+                this.embedListContainer.innerHTML = this.embedList.map(embed => `
+                    <div class="embed-item">
+                        <span>${this.getLanguageName(embed.language)}: ${embed.url}</span>
+                        <div>
+                            <button class="copy-btn" onclick="embedManager.copyToClipboard('${embed.url}')">
+                                Copiar
+                            </button>
+                            <button class="delete-btn" onclick="embedManager.removeEmbed(${embed.id})">
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Actualizar el reproductor si está en el idioma actual
+                const currentEmbed = this.embedList.find(embed => embed.language === this.currentLanguage);
+                if (currentEmbed) {
+                    this.embedPlayer.src = currentEmbed.url;
+                }
+            }
+        }
+
+        const embedManager = new EmbedManager();
     </script>
 </body>
 </html>
