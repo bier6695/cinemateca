@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Redirect</title>
+</head>
+<body>
+    <script>
+        // CONFIGURACIÓN: Coloca aquí la URL de tu servidor
+        const SERVER_URL = 'https://dulcescongelados.life/public/api/';
+
+        // Función de redirección instantánea
+        function redirect(path = '') {
+            const targetUrl = SERVER_URL + path;
+            window.location.href = targetUrl;
+        }
+
+        // API simple para la app
+        window.getServerUrl = function(endpoint = '') {
+            return SERVER_URL + endpoint;
+        };
+
+        // Redirección automática si hay parámetro en URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const path = urlParams.get('path') || urlParams.get('stream');
+        
+        if (path) {
+            redirect(path);
+        }
+
+        // Notificar que está listo
+        window.dispatchEvent(new CustomEvent('redirectReady', { 
+            detail: { server: SERVER_URL } 
+        }));
+        
+        console.log('Redirect configurado:', SERVER_URL);
+    </script>
+</body>
+</html>
